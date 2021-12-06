@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebMap</title>
+    <!-- leaflet css -->
+    <link rel="stylesheet" href="../src/leaflet.css" />
+    <!-- bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+    />
+    <!-- css  -->
+    <link rel="stylesheet" href="../css/style.css" />
+    <!-- leaflet -->
+    <script src="../src/leaflet-src.js"></script>
+    <!-- jquery -->
+    <script src="../src/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="row">
+      <div id="side-bar" class="col-md-3"></div>
+      <div id="mapdiv" class="col-md-9"></div>
+    </div>
+    <script>
+      var mymap;
+      var lyrOSM;
+      var markerCurrentLocation;
+
+      $(document).ready(function () {
+        mymap = L.map('mapdiv', {
+          center: [19.4, -99.2], // 지도 위치 (대한민국 : 37.236889, -232.818793)
+          zoom: 13, // 줌 13으로 보이게
+          zoomControl: false, // 줌 컨트롤 + - 상자 보이지 않게
+          // dragging: false, // 드래그 막기
+          // minZoom: 10, // 최소 줌 10
+          // maxZoom: 14, // 최대 줌 14
+        });
+        lyrOSM = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png');
+        mymap.addLayer(lyrOSM);
+
+        // 5 초 마다 현재 위치 찾기
+        // setInterval(function (e) {
+        //   mymap.locate();
+        // }, 5000);
+
+        // 마우스 클릭시 shift 키 누르면 줌 레벨 보이게 , shift 키 안누르고 클릭시 latlng 위치
+        mymap.on('click', function (e) {
+          // console.log(e);
+          // alert(e.latlng.toString());
+          if (e.originalEvent.shiftKey) {
+            alert(mymap.getZoom());
+          } else {
+            alert(e.latlng.toString());
+          }
+        });
+
+        // 마우스 오른쪽 클릭시 마커 생성, 마커를 마우스 왼쪽 클릭시 팝업 창 뜨면서 latlng 위치 및 마커 생성 시각 팝업
+        mymap.on('contextmenu', function (e) {
+          var dtCurrentTime = new Date();
+          L.marker(e.latlng)
+            .addTo(mymap)
+            .bindPopup(
+              e.latlng.toString() + '<br />' + dtCurrentTime.toString()
+            );
+        });
+
+        // 키보드 키 눌렀을 때
+        mymap.on('keypress', function (e) {
+          // l 키를 눌렀을 때
+          if (e.originalEvent.key == 'l') {
+            mymap.locate();
+          }
+        });
+
+        // 현재 위치를 찾으면
+        mymap.on('locationfound', function (e) {
+          console.log(e);
+          if (markerCurrentLocation) {
+            markerCurrentLocation.remove();
+          }
+
+          // circleMarker 작은 원으로 현재위치를 나타냄
+          // markerCurrentLocation = L.circleMarker(e.latlng).addTo(mymap);
+
+          // (사이즈 지정)큰 원으로 현재위치를 나타냄
+          markerCurrentLocation = L.circle(e.latlng, {
+            radius: e.accuracy / 2,
+          }).addTo(mymap);
+
+          mymap.setView(e.latlng, 14);
+        });
+
+        mymap.on('locationerror', function (e) {
+          console.log(e);
+          alert('Location was not found');
+        });
+      });
+    </script>
+  </body>
+</html>
