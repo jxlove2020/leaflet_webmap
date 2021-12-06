@@ -36,8 +36,8 @@
       var mymap;
       var lyrOSM;
       var markerCurrentLocation;
-      var popYongin;
-      var popExample;
+      // var popYongin;
+      // var popExample;
 
       $(document).ready(function () {
         mymap = L.map('mapdiv', {
@@ -131,6 +131,8 @@
         });
 
         $('#btnLocate').click(function () {
+          // 팝업 클로즈 안해줄 경우 에러 (Maximum call stack size exceeded)
+          mymap.closePopup(popYongin);
           mymap.locate();
         });
 
